@@ -242,7 +242,7 @@
 
         function exportToCSV() {
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Material," + properties.join(',') + ",Tonase,Rp/Ton\n";
+            csvContent += "Material," + properties.join(',') + ",Tonase,RpPerTon\n";
 
             for (let name in materials) {
                 let row = [name];
