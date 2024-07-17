@@ -199,7 +199,7 @@
                 $(this).find('.sm').text(row.SM.toFixed(2));
                 $(this).find('.am').text(row.AM.toFixed(2));
                 $(this).find('.naeq').text(row.NaEq.toFixed(2));
-                $(this).find('.rp-total').text(row.RpTotal.toFixed(2));
+                $(this).find('.rp-total').text(row.RpTotal.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
             });
         
             let sumProduct = properties.reduce((acc, prop) => ({ ...acc, [prop]: 0 }), { RpTotal: 0 });
@@ -232,7 +232,7 @@
                     <td>${sumProduct.SM.toFixed(2)}</td>
                     <td>${sumProduct.AM.toFixed(2)}</td>
                     <td>${sumProduct.NaEq.toFixed(2)}</td>
-                    <td>${sumProduct.RpTotal.toFixed(2)}</td>
+                    <td>${sumProduct.RpTotal.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
                     <td>100.00%</td>
                     <td></td>
                 </tr>
