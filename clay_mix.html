@@ -176,7 +176,7 @@
             row.find('.material-name').val(name);
         }
 
-        function calculate() {
+           function calculate() {
             let data = [];
             let totalTonase = 0;
         
@@ -238,15 +238,6 @@
                 </tr>
             `;
             $('#inputTable tbody').append(sumProductRow);
-        }
-            // New function to save SumProduct values
-            function saveSumProductValues() {
-            localStorage.setItem('sumProductValues', JSON.stringify(sumProductValues));
-        }
-
-            // New function to get SumProduct values (can be called from other HTML files)
-            function getSumProductValues() {
-            return JSON.parse(localStorage.getItem('sumProductValues')) || {};
         }
 
         function exportToCSV() {
