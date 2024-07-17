@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cement Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        input[type="number"] { width: 100px; box-sizing: border-box;}
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .output-blue {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="home-link">Back to Calculator Hub</a>
+    <h1>Cement Calculator</h1>
+    <button onclick="importCSV()">Import CSV</button>
+    <button onclick="exportCSV()">Export CSV</button>
+    <button onclick="toggleIntermediateResults()">Toggle Intermediate Results</button>
+    <button onclick="resetToDefaults()">Reset to Defaults</button>
+    <button onclick="addFuel()">Add Fuel</button>
+    <table id="inputTable">
+        <tr>
+            <th>Parameter</th>
+            <th>RM</th>
+            <th>Dust</th>
+            <th>RM_Dust (KF)</th>
+            <th>Klinker (CL)</th>
+        </tr>
+        <tr>
+            <td>LOI</td>
+            <td><input type="number" id="LOI_RM" value="35.17"></td>
+            <td><input type="number" id="LOI_Dust" value="42"></td>
+            <td><span id="LOI_RM_Dust" class="output-blue"></span></td>
+            <td><span id="LOI_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>Si</td>
+            <td><input type="number" id="Si_RM" value="13.65"></td>
+            <td><input type="number" id="Si_Dust" value="9.94"></td>
+            <td><span id="Si_RM_Dust" class="output-blue"></span></td>
+            <td><span id="Si_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>Al</td>
+            <td><input type="number" id="Al_RM" value="3.65"></td>
+            <td><input type="number" id="Al_Dust" value="3.79"></td>
+            <td><span id="Al_RM_Dust" class="output-blue"></span></td>
+            <td><span id="Al_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>Fe</td>
+            <td><input type="number" id="Fe_RM" value="2.28"></td>
+            <td><input type="number" id="Fe_Dust" value="2.10"></td>
+            <td><span id="Fe_RM_Dust" class="output-blue"></span></td>
+            <td><span id="Fe_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>Ca</td>
+            <td><input type="number" id="Ca_RM" value="44"></td>
+            <td><input type="number" id="Ca_Dust" value="46.87"></td>
+            <td><span id="Ca_RM_Dust" class="output-blue"></span></td>
+            <td><span id="Ca_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>Mg</td>
+            <td><input type="number" id="Mg_RM" value="0.5"></td>
+            <td><input type="number" id="Mg_Dust" value="0.2"></td>
+            <td><span id="Mg_RM_Dust" class="output-blue"></span></td>
+            <td><span id="Mg_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>K</td>
+            <td><input type="number" id="K_RM" value="0.45"></td>
+            <td><input type="number" id="K_Dust" value="0.6"></td>
+            <td><span id="K_RM_Dust" class="output-blue"></span></td>
+            <td><span id="K_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>Na</td>
+            <td><input type="number" id="Na_RM" value="0.2"></td>
+            <td><input type="number" id="Na_Dust" value="0.4"></td>
+            <td><span id="Na_RM_Dust" class="output-blue"></span></td>
+            <td><span id="Na_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>S</td>
+            <td><input type="number" id="S_RM" value="0.08"></td>
+            <td><input type="number" id="S_Dust" value="0.8"></td>
+            <td><span id="S_RM_Dust" class="output-blue"></span></td>
+            <td><span id="S_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>FCaO</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><input type="number" id="FCaO" value="1.4"></td>
+        </tr>
+        <tr>
+            <td>DustRatio</td>
+            <td></td>
+            <td></td>
+            <td><input type="number" id="DustRatio" value="10"></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <table id="fuelTable">
+        <tr>
+            <th>Fuel Name</th>
+            <th>LOI</th>
+            <th>Si</th>
+            <th>Al</th>
+            <th>Fe</th>
+            <th>Ca</th>
+            <th>Mg</th>
+            <th>K</th>
+            <th>Na</th>
+            <th>S</th>
+            <th>Ash</th>
+            <th>CV</th>
+            <th>Ton</th>
+            <th>Action</th>
+        </tr>
+        <tr id="fuel-Coal">
+            <td>Coal (bb)</td>
+            <td><input type="number" id="LOI_Coal" value="0.35"></td>
+            <td><input type="number" id="Si_Coal" value="27.83"></td>
+            <td><input type="number" id="Al_Coal" value="10.88"></td>
+            <td><input type="number" id="Fe_Coal" value="10.62"></td>
+            <td><input type="number" id="Ca_Coal" value="38.99"></td>
+            <td><input type="number" id="Mg_Coal" value="0.3"></td>
+            <td><input type="number" id="K_Coal" value="0.5"></td>
+            <td><input type="number" id="Na_Coal" value="0.2"></td>
+            <td><input type="number" id="S_Coal" value="0.1"></td>
+            <td><input type="number" id="Ash_Coal" value="10"></td>
+            <td><input type="number" id="CV_Coal" value="4900"></td>
+            <td><input type="number" id="Ton_Coal" value="45"></td>
+            <td><button onclick="removeFuel('Coal')">Remove</button></td>
+        </tr>
+        <tr id="fuel-Sekam">
+            <td>Sekam</td>
+            <td><input type="number" id="LOI_Sekam" value="4.7"></td>
+            <td><input type="number" id="Si_Sekam" value="93"></td>
+            <td><input type="number" id="Al_Sekam" value="0.17"></td>
+            <td><input type="number" id="Fe_Sekam" value="0.35"></td>
+            <td><input type="number" id="Ca_Sekam" value="0.91"></td>
+            <td><input type="number" id="Mg_Sekam" value="0.3"></td>
+            <td><input type="number" id="K_Sekam" value="0.8"></td>
+            <td><input type="number" id="Na_Sekam" value="0.6"></td>
+            <td><input type="number" id="S_Sekam" value="0.4"></td>
+            <td><input type="number" id="Ash_Sekam" value="20"></td>
+            <td><input type="number" id="CV_Sekam" value="2600"></td>
+            <td><input type="number" id="Ton_Sekam" value="15"></td>
+            <td><button onclick="removeFuel('Sekam')">Remove</button></td>
+        </tr>
+    </table>
+    <div>
+        <label for="HC">HC:</label>
+        <input type="number" id="HC" value="820">
+        <label for="Kiln_Feed">Kiln Feed:</label>
+        <input type="number" id="Kiln_Feed" value="530">
+    </div>
+    <!--<h3>HC: Kiln Feed:</h3>-->
+    
+    <button onclick="calculate()">CALCULATE</button>
+    <table id="outputTable">
+        <tr>
+            <th>Parameter</th>
+            <th>RM_Dust (KF)</th>
+            <th>Klinker (CL)</th>
+        </tr>
+        <tr>
+            <td>LSF</td>
+            <td><span id="LSF_KF" class="output-blue"></span></td>
+            <td><span id="LSF_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>SM</td>
+            <td><span id="SM_KF" class="output-blue"></span></td>
+            <td><span id="SM_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>AM</td>
+            <td><span id="AM_KF" class="output-blue"></span></td>
+            <td><span id="AM_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>C3S</td>
+            <td></td>
+            <td><span id="C3S_CL" class="output-blue"></span></td>
+        </tr>
+        <tr>
+            <td>NaEq</td>
+            <td><span id="NaEq_KF" class="output-blue"></span></td>
+            <td><span id="NaEq_CL" class="output-blue"></span></td>
+        </tr>
+    </table>
+
+    <div id="intermediate-results" style="display: none;">
+        <h3>Intermediate Results:</h3>
+        <pre id="intermediateOutput"></pre>
+    </div>
+
+    <script>
+        const inputFields = [
+            'LOI_RM', 'Si_RM', 'Al_RM', 'Fe_RM', 'Ca_RM', 'Mg_RM', 'K_RM', 'Na_RM', 'S_RM',
+            'LOI_Dust', 'Si_Dust', 'Al_Dust', 'Fe_Dust', 'Ca_Dust', 'Mg_Dust', 'K_Dust', 'Na_Dust', 'S_Dust',
+            'FCaO', 'DustRatio', 'HC', 'Kiln_Feed'
+        ];
+
+        const fuelProps = ['LOI', 'Si', 'Al', 'Fe', 'Ca', 'Mg', 'K', 'Na', 'S', 'Ash', 'CV', 'Ton'];
+
+        function addFuel() {
+            const fuelName = prompt("Enter the name of the new fuel:");
+            if (fuelName) {
+                const fuelTable = document.getElementById('fuelTable');
+                const newRow = fuelTable.insertRow(-1);
+                newRow.id = `fuel-${fuelName}`;
+                newRow.innerHTML = `
+                    <td>${fuelName}</td>
+                    ${fuelProps.map(prop => `<td><input type="number" id="${prop}_${fuelName}" value="0"></td>`).join('')}
+                    <td><button onclick="removeFuel('${fuelName}')">Remove</button></td>
+                `;
+            }
+        }
+
+        function removeFuel(fuelName) {
+            const fuelTable = document.getElementById('fuelTable');
+            const fuelRow = document.getElementById(`fuel-${fuelName}`);
+            fuelTable.deleteRow(fuelRow.rowIndex);
+        }
+
+        function calculate() {
+            const data = {};
+            inputFields.forEach(field => {
+                data[field] = parseFloat(document.getElementById(field).value) || 0;
+            });
+
+            const results = {};
+            let intermediateResults = "Intermediate Calculations:\n\n";
+            
+            // Intermediate calculations
+            results.ton_klinker = 0.641 * data.Kiln_Feed;
+            results.ton_dust = results.ton_klinker * data.DustRatio / 100;
+            
+            // Calculate total fuel properties
+            const fuels = Array.from(document.getElementById('fuelTable').rows)
+                .slice(1)
+                .map(row => row.id.split('-')[1]);
+
+            let totalFuelTon = 0;
+            let totalCV = 0;
+            fuels.forEach(fuel => {
+                const fuelTon = parseFloat(document.getElementById(`Ton_${fuel}`).value) || 0;
+                totalFuelTon += fuelTon;
+                totalCV += fuelTon * (parseFloat(document.getElementById(`CV_${fuel}`).value) || 0);
+            });
+
+            const CV_tot = totalCV / totalFuelTon;
+            results.fuel_ton = data.HC * results.ton_klinker / CV_tot;
+
+            let ash_ton_tot = 0;
+            fuels.forEach(fuel => {
+                const fuelTon = parseFloat(document.getElementById(`Ton_${fuel}`).value) || 0;
+                const fuelProp = fuelTon / totalFuelTon;
+                const fuelAsh = parseFloat(document.getElementById(`Ash_${fuel}`).value) || 0;
+                const ashTon = (fuelAsh * results.fuel_ton * fuelProp) / 100;
+                ash_ton_tot += ashTon;
+                results[`ash_ton_${fuel}`] = ashTon;
+                intermediateResults += `ash_ton_${fuel} = ${ashTon.toFixed(2)}\n`;
+            });
+
+            results.ash_ton_tot = ash_ton_tot;
+            results.KF_Dust_Ash = data.Kiln_Feed - (results.ton_dust * (1 - data.DustRatio)) + results.ash_ton_tot;
+            
+            intermediateResults += `ton_klinker = ${results.ton_klinker.toFixed(2)}\n`;
+            intermediateResults += `ton_dust = ${results.ton_dust.toFixed(2)}\n`;
+            intermediateResults += `CV_tot = ${CV_tot.toFixed(2)}\n`;
+            intermediateResults += `fuel_ton = ${results.fuel_ton.toFixed(2)}\n`;
+            intermediateResults += `ash_ton_tot = ${results.ash_ton_tot.toFixed(2)}\n`;
+            intermediateResults += `KF_Dust_Ash = ${results.KF_Dust_Ash.toFixed(2)}\n\n`;
+
+            // Calculate fuel properties
+            results.fuel_props = {};
+            fuelProps.forEach(prop => {
+                if (prop !== 'Ash' && prop !== 'CV' && prop !== 'Ton') {
+                    let weightedSum = 0;
+                    fuels.forEach(fuel => {
+                        const fuelValue = parseFloat(document.getElementById(`${prop}_${fuel}`).value) || 0;
+                        const fuelAsh = parseFloat(document.getElementById(`Ash_${fuel}`).value) || 0;
+                        const fuelTon = parseFloat(document.getElementById(`Ton_${fuel}`).value) || 0;
+                        weightedSum += fuelValue * results[`ash_ton_${fuel}`];
+                    });
+                    results.fuel_props[prop] = weightedSum / results.ash_ton_tot;
+                    intermediateResults += `${prop}_fuel = ${results.fuel_props[prop].toFixed(2)}\n`;
+                }
+            });
+
+            // Calculate RM_Dust properties
+            fuelProps.forEach(prop => {
+                if (prop !== 'Ash' && prop !== 'CV' && prop !== 'Ton') {
+                    results[`${prop}_RM_Dust`] = ((data[`${prop}_RM`] * data.Kiln_Feed) + (data[`${prop}_Dust`] * results.ton_dust)) / (data.Kiln_Feed + results.ton_dust);
+                    document.getElementById(`${prop}_RM_Dust`).textContent = results[`${prop}_RM_Dust`].toFixed(2);
+                    intermediateResults += `${prop}_RM_Dust = ${results[`${prop}_RM_Dust`].toFixed(2)}\n`;
+                }
+            });
+
+            intermediateResults += '\nFinal Calculations:\n';
+
+            // Final calculations
+            fuelProps.forEach(prop => {
+                if (prop !== 'Ash' && prop !== 'CV' && prop !== 'Ton') {
+                    results[`${prop}_CL`] = ((results[`${prop}_RM_Dust`] * data.Kiln_Feed + results.fuel_props[prop] * results.ash_ton_tot) / (data.Kiln_Feed + results.ash_ton_tot) * results.KF_Dust_Ash) / (results.KF_Dust_Ash - (results.LOI_RM_Dust / 100 * results.KF_Dust_Ash));
+                    document.getElementById(`${prop}_CL`).textContent = results[`${prop}_CL`].toFixed(2);
+                    intermediateResults += `${prop}_CL = ${results[`${prop}_CL`].toFixed(2)}\n`;
+                }
+            });
+
+            results.LSF_KF = 100 * results.Ca_RM_Dust / (2.8 * results.Si_RM_Dust + 1.18 * results.Al_RM_Dust + 0.65 * results.Fe_RM_Dust);
+            results.SM_KF = results.Si_RM_Dust / (results.Al_RM_Dust + results.Fe_RM_Dust);
+            results.AM_KF = results.Al_RM_Dust / results.Fe_RM_Dust;
+            results.LSF_CL = 100 * results.Ca_CL / (2.8 * results.Si_CL + 1.18 * results.Al_CL + 0.65 * results.Fe_CL);
+            results.SM_CL = results.Si_CL / (results.Al_CL + results.Fe_CL);
+            results.AM_CL = results.Al_CL / results.Fe_CL;
+            results.C3S_CL = (4.071 * (results.Ca_CL - data.FCaO)) - (7.6 * results.Si_CL) - (6.718 * results.Al_CL) - (1.43 * results.Fe_CL);
+            results.NaEq_CL = 0.658 * results.K_CL + results.Na_CL;
+            results.NaEq_KF = 0.658 * results.K_RM_Dust + results.Na_RM_Dust;
+
+            document.getElementById('LSF_KF').textContent = results.LSF_KF.toFixed(2);
+            document.getElementById('SM_KF').textContent = results.SM_KF.toFixed(2);
+            document.getElementById('AM_KF').textContent = results.AM_KF.toFixed(2);
+            document.getElementById('LSF_CL').textContent = results.LSF_CL.toFixed(2);
+            document.getElementById('SM_CL').textContent = results.SM_CL.toFixed(2);
+            document.getElementById('AM_CL').textContent = results.AM_CL.toFixed(2);
+            document.getElementById('C3S_CL').textContent = results.C3S_CL.toFixed(2);
+            document.getElementById('NaEq_CL').textContent = results.NaEq_CL.toFixed(2);
+            document.getElementById('NaEq_KF').textContent = results.NaEq_KF.toFixed(2);
+
+            intermediateResults += `LSF_KF = ${results.LSF_KF.toFixed(2)}\n`;
+            intermediateResults += `SM_KF = ${results.SM_KF.toFixed(2)}\n`;
+            intermediateResults += `AM_KF = ${results.AM_KF.toFixed(2)}\n`;
+            intermediateResults += `LSF_CL = ${results.LSF_CL.toFixed(2)}\n`;
+            intermediateResults += `SM_CL = ${results.SM_CL.toFixed(2)}\n`;
+            intermediateResults += `AM_CL = ${results.AM_CL.toFixed(2)}\n`;
+            intermediateResults += `C3S_CL = ${results.C3S_CL.toFixed(2)}\n`;
+            intermediateResults += `NaEq_CL = ${results.NaEq_CL.toFixed(2)}\n`;
+            intermediateResults += `NaEq_KF = ${results.NaEq_KF.toFixed(2)}\n`;
+
+            document.getElementById('intermediateOutput').textContent = intermediateResults;
+        }
+
+        function toggleIntermediateResults() {
+            const intermediateResults = document.getElementById('intermediate-results');
+            intermediateResults.style.display = intermediateResults.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function resetToDefaults() {
+            inputFields.forEach(field => {
+                const input = document.getElementById(field);
+                input.value = input.defaultValue;
+            });
+
+            const fuelTable = document.getElementById('fuelTable');
+            while (fuelTable.rows.length > 3) {
+                fuelTable.deleteRow(-1);
+            }
+
+            Array.from(fuelTable.rows).slice(1).forEach(row => {
+                const fuelName = row.id.split('-')[1];
+                fuelProps.forEach(prop => {
+                    const input = document.getElementById(`${prop}_${fuelName}`);
+                    if (input) input.value = input.defaultValue;
+                });
+            });
+
+            calculate();
+        }
+
+        function exportCSV() {
+            const rows = [];
+            document.querySelectorAll('table').forEach(table => {
+                table.querySelectorAll('tr').forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('th, td').forEach(cell => {
+                        const input = cell.querySelector('input');
+                        rowData.push(input ? input.value : cell.textContent.trim());
+                    });
+                    rows.push(rowData.join(','));
+                });
+            });
+            const csvContent = rows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'cement_calculator_data.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function importCSV() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const contents = e.target.result;
+                    const rows = contents.split('\n');
+                    let currentTable = null;
+                    rows.forEach((row, rowIndex) => {
+                        const cells = row.split(',');
+                        if (cells[0] === 'Parameter') {
+                            currentTable = document.getElementById('inputTable');
+                        } else if (cells[0] === 'Fuel Name') {
+                            currentTable = document.getElementById('fuelTable');
+                        } else if (cells[0] === 'LSF') {
+                            currentTable = document.getElementById('outputTable');
+                        }
+                        
+                        if (currentTable) {
+                            const tableRow = currentTable.rows[rowIndex % currentTable.rows.length];
+                            if (tableRow) {
+                                cells.forEach((cell, cellIndex) => {
+                                    const tableCell = tableRow.cells[cellIndex];
+                                    if (tableCell) {
+                                        const input = tableCell.querySelector('input');
+                                        if (input) {
+                                            input.value = cell.trim();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    calculate();
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Initial calculation on page load
+        calculate();
+    </script>
+</body>
+</html>

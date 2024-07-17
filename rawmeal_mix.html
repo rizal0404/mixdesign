@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raw Mix Design Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input { width: 60px; }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #45a049; }
+        .target { background-color: #ffe0b2; }
+        .result { background-color: #e3f2fd; }
+        .percent { background-color: #c8e6c9; }
+        .signature {
+            text-align: right;
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="home-link">Back to Calculator Hub</a>
+    <h1>Raw Mix Design Calculator</h1>
+    <table id="inputTable">
+        <tr>
+            <th>Target Rawmix</th>
+            <th>LSsp</th>
+            <th>SMsp</th>
+            <th>AMsp</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="number" id="lsfsp" value="100" step="0.01" class="target"></td>
+            <td><input type="number" id="smsp" value="2.3" step="0.01" class="target"></td>
+            <td><input type="number" id="amsp" value="1.6" step="0.01" class="target"></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th></th>
+            <th>Batu Kapur</th>
+            <th>Tanah Liat</th>
+            <th>Pasir Silika</th>
+            <th>Pasir Besi</th>
+            <th>Rawmix</th>
+        </tr>
+        <tr>
+            <td>SiO2</td>
+            <td><input type="number" id="bk_sio2" value="1.21" step="0.01"></td>
+            <td><input type="number" id="tl_sio2" value="60.91" step="0.01"></td>
+            <td><input type="number" id="ps_sio2" value="81.08" step="0.01"></td>
+            <td><input type="number" id="pb_sio2" value="35.40" step="0.01"></td>
+            <td id="rawmix_sio2" class="result"></td>
+        </tr>
+        <tr>
+            <td>Al2O3</td>
+            <td><input type="number" id="bk_al2o3" value="0.60" step="0.01"></td>
+            <td><input type="number" id="tl_al2o3" value="17.05" step="0.01"></td>
+            <td><input type="number" id="ps_al2o3" value="6.19" step="0.01"></td>
+            <td><input type="number" id="pb_al2o3" value="4.28" step="0.01"></td>
+            <td id="rawmix_al2o3" class="result"></td>
+        </tr>
+        <tr>
+            <td>Fe2O3</td>
+            <td><input type="number" id="bk_fe2o3" value="0.34" step="0.01"></td>
+            <td><input type="number" id="tl_fe2o3" value="9.89" step="0.01"></td>
+            <td><input type="number" id="ps_fe2o3" value="3.08" step="0.01"></td>
+            <td><input type="number" id="pb_fe2o3" value="52.06" step="0.01"></td>
+            <td id="rawmix_fe2o3" class="result"></td>
+        </tr>
+        <tr>
+            <td>CaO</td>
+            <td><input type="number" id="bk_cao" value="54.75" step="0.01"></td>
+            <td><input type="number" id="tl_cao" value="1.55" step="0.01"></td>
+            <td><input type="number" id="ps_cao" value="2.64" step="0.01"></td>
+            <td><input type="number" id="pb_cao" value="5.77" step="0.01"></td>
+            <td id="rawmix_cao" class="result"></td>
+        </tr>
+        <tr>
+            <td>LSF</td>
+            <td id="bk_lsf" class="result"></td>
+            <td id="tl_lsf" class="result"></td>
+            <td id="ps_lsf" class="result"></td>
+            <td id="pb_lsf" class="result"></td>
+            <td id="rawmix_lsf" class="result"></td>
+        </tr>
+        <tr>
+            <td>SM</td>
+            <td id="bk_sm" class="result"></td>
+            <td id="tl_sm" class="result"></td>
+            <td id="ps_sm" class="result"></td>
+            <td id="pb_sm" class="result"></td>
+            <td id="rawmix_sm" class="result"></td>
+        </tr>
+        <tr>
+            <td>AM</td>
+            <td id="bk_am" class="result"></td>
+            <td id="tl_am" class="result"></td>
+            <td id="ps_am" class="result"></td>
+            <td id="pb_am" class="result"></td>
+            <td id="rawmix_am" class="result"></td>
+        </tr>
+        <tr>
+            <td>Persen (%)</td>
+            <td id="bk_percent" class="percent"></td>
+            <td id="tl_percent" class="percent"></td>
+            <td id="ps_percent" class="percent"></td>
+            <td id="pb_percent" class="percent"></td>
+            <td id="total_percent" class="percent"></td>
+        </tr>
+    </table>
+    <button onclick="calculate()">Calculate</button>
+    <div class="signature">byRZL</div>
+
+    <script>
+        function raw_mix_design(batu_kapur, tanah_liat, pasir_silika, pasir_besi, LSFsp, SMsp, AMsp) {
+            const bahan_baku = [
+                batu_kapur,
+                tanah_liat,
+                pasir_silika,
+                pasir_besi
+            ];
+
+            let matriks = numeric.identity(4);
+
+            for (let i = 0; i < 4; i++) {
+                let data = bahan_baku[i];
+                matriks[0][i] = data[3] - ((2.8*data[0] + 1.18*data[1] + 0.65*data[2])*LSFsp/100);
+                matriks[1][i] = data[0] - (data[1]+data[2])*SMsp;
+                matriks[2][i] = data[1] - data[2]*AMsp;
+            }
+
+            let matriks_invers = numeric.inv(matriks);
+            let pengali = [0, 0, 0, 1];
+            let hasil = numeric.dot(matriks_invers, pengali);
+            
+            let total = numeric.sum(hasil);
+            hasil = hasil.map(x => x / total * 100);
+
+            return hasil;
+        }
+
+        function calculate_chemical_composition(batu_kapur, tanah_liat, pasir_silika, pasir_besi, percentages) {
+            const materials = [batu_kapur, tanah_liat, pasir_silika, pasir_besi];
+            const composition = [0, 0, 0, 0];  // SiO2, Al2O3, Fe2O3, CaO
+
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    composition[j] += materials[i][j] * percentages[i] / 100;
+                }
+            }
+
+            return composition;
+        }
+
+        function calculate_modulus(sio2, al2o3, fe2o3, cao) {
+            const lsf = 100 * cao / (2.8 * sio2 + 1.18 * al2o3 + 0.65 * fe2o3);
+            const sm = sio2 / (al2o3 + fe2o3);
+            const am = al2o3 / fe2o3;
+            return [lsf, sm, am];
+        }
+
+        function calculate() {
+            const batu_kapur = [
+                parseFloat(document.getElementById('bk_sio2').value),
+                parseFloat(document.getElementById('bk_al2o3').value),
+                parseFloat(document.getElementById('bk_fe2o3').value),
+                parseFloat(document.getElementById('bk_cao').value)
+            ];
+            const tanah_liat = [
+                parseFloat(document.getElementById('tl_sio2').value),
+                parseFloat(document.getElementById('tl_al2o3').value),
+                parseFloat(document.getElementById('tl_fe2o3').value),
+                parseFloat(document.getElementById('tl_cao').value)
+            ];
+            const pasir_silika = [
+                parseFloat(document.getElementById('ps_sio2').value),
+                parseFloat(document.getElementById('ps_al2o3').value),
+                parseFloat(document.getElementById('ps_fe2o3').value),
+                parseFloat(document.getElementById('ps_cao').value)
+            ];
+            const pasir_besi = [
+                parseFloat(document.getElementById('pb_sio2').value),
+                parseFloat(document.getElementById('pb_al2o3').value),
+                parseFloat(document.getElementById('pb_fe2o3').value),
+                parseFloat(document.getElementById('pb_cao').value)
+            ];
+            const LSFsp = parseFloat(document.getElementById('lsfsp').value);
+            const SMsp = parseFloat(document.getElementById('smsp').value);
+            const AMsp = parseFloat(document.getElementById('amsp').value);
+
+            const result = raw_mix_design(batu_kapur, tanah_liat, pasir_silika, pasir_besi, LSFsp, SMsp, AMsp);
+            const chemicalComposition = calculate_chemical_composition(batu_kapur, tanah_liat, pasir_silika, pasir_besi, result);
+            
+            // Update percentages
+            document.getElementById('bk_percent').textContent = result[0].toFixed(2);
+            document.getElementById('tl_percent').textContent = result[1].toFixed(2);
+            document.getElementById('ps_percent').textContent = result[2].toFixed(2);
+            document.getElementById('pb_percent').textContent = result[3].toFixed(2);
+            document.getElementById('total_percent').textContent = '100.00';
+
+            // Update Rawmix composition
+            document.getElementById('rawmix_sio2').textContent = chemicalComposition[0].toFixed(2);
+            document.getElementById('rawmix_al2o3').textContent = chemicalComposition[1].toFixed(2);
+            document.getElementById('rawmix_fe2o3').textContent = chemicalComposition[2].toFixed(2);
+            document.getElementById('rawmix_cao').textContent = chemicalComposition[3].toFixed(2);
+
+            // Calculate and update modulus for each material and Rawmix
+            const materials = [batu_kapur, tanah_liat, pasir_silika, pasir_besi, chemicalComposition];
+            const ids = ['bk', 'tl', 'ps', 'pb', 'rawmix'];
+
+            materials.forEach((material, index) => {
+                const [lsf, sm, am] = calculate_modulus(...material);
+                document.getElementById(`${ids[index]}_lsf`).textContent = lsf.toFixed(2);
+                document.getElementById(`${ids[index]}_sm`).textContent = sm.toFixed(2);
+                document.getElementById(`${ids[index]}_am`).textContent = am.toFixed(2);
+            });
+        }
+    </script>
+</body>
+</html>

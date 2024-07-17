@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Mixing Tanah Liat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="number"], input[type="text"], select { width: 100%; box-sizing: border-box; }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        #result { margin-top: 20px; }
+        .delete-row, .save-material { background-color: #ff6b6b; color: white; border: none; cursor: pointer; }
+        .sum-product-row { background-color: #4ecdc4; color: white; font-weight: bold; }
+        .save-material { background-color: #4caf50; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="home-link">Back to Calculator Hub</a>
+    <h1>Kalkulator Mixing Tanah Liat</h1>
+    <button onclick="addRow()">Add Material</button>
+    <button onclick="exportToCSV()">Export to CSV</button>
+    <input type="file" id="csvFile" accept=".csv" style="display: none;">
+    <button onclick="document.getElementById('csvFile').click()">Import from CSV</button>
+    <button onclick="saveAsJPEG()">Save as JPEG</button>
+    <table id="inputTable">
+        <thead>
+            <tr>
+                <th>Material</th>
+                <th>SiO2</th>
+                <th>Al2O3</th>
+                <th>Fe2O3</th>
+                <th>CaO</th>
+                <th>MgO</th>
+                <th>K2O</th>
+                <th>Na2O</th>
+                <th>SO3</th>
+                <th>Tonase</th>
+                <th>Rp/Ton</th>
+                <th>SM</th>
+                <th>AM</th>
+                <th>NaEq</th>
+                <th>Rp Total</th>
+                <th>%</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <button onclick="calculate()">Calculate</button>
+
+    <script>
+        const properties = ['SiO2', 'Al2O3', 'Fe2O3', 'CaO', 'MgO', 'K2O', 'Na2O', 'SO3'];
+        let materials = {};
+        let sumProductValues = {}; // New object to store SumProduct values
+
+        function saveMaterial(name, data) {
+            materials[name] = data;
+            updateMaterialDropdowns();
+        }
+
+        function deleteMaterial(name) {
+            delete materials[name];
+            updateMaterialDropdowns();
+        }
+
+        function updateMaterialDropdowns() {
+            $('.material-select').each(function() {
+                let currentValue = $(this).val();
+                $(this).empty().append('<option value="">Select a material</option>');
+                for (let name in materials) {
+                    $(this).append(`<option value="${name}">${name}</option>`);
+                }
+                $(this).val(currentValue);
+            });
+        }
+
+        function addRow() {
+            const newRow = `
+                <tr>
+                    <td>
+                        <select class="material-select" onchange="loadMaterial(this)">
+                            <option value="">Select a material</option>
+                        </select>
+                        <input type="text" class="material-name" placeholder="New material name">
+                    </td>
+                    ${properties.map(() => '<td><input type="number" step="0.05" value="0"></td>').join('')}
+                    <td><input type="number" step="1" value="0"></td>
+                    <td><input type="number" step="0.01" value="0"></td>
+                    <td class="sm"></td>
+                    <td class="am"></td>
+                    <td class="naeq"></td>
+                    <td class="rp-total"></td>
+                    <td class="percentage"></td>
+                    <td>
+                        <button class="save-material" onclick="saveMaterialRow(this)">Save</button>
+                        <button class="delete-row" onclick="deleteRow(this)">Delete</button>
+                    </td>
+                </tr>
+            `;
+            $('#inputTable tbody').append(newRow);
+            updateMaterialDropdowns();
+        }
+
+        function deleteRow(button) {
+            $(button).closest('tr').remove();
+        }
+
+        function saveMaterialRow(button) {
+            let row = $(button).closest('tr');
+            let name = row.find('.material-name').val();
+            if (!name) {
+                alert('Please enter a name for the material.');
+                return;
+            }
+            let data = {};
+            properties.forEach((prop, index) => {
+                data[prop] = parseFloat(row.find('input[type="number"]').eq(index).val()) || 0;
+            });
+            data['Tonase'] = parseFloat(row.find('input[type="number"]').eq(properties.length).val()) || 0;
+            data['RpPerTon'] = parseFloat(row.find('input[type="number"]').eq(properties.length + 1).val()) || 0;
+            saveMaterial(name, data);
+            row.find('.material-select').val(name);
+        }
+
+        function loadMaterial(select) {
+            let name = $(select).val();
+            if (!name) return;
+            let data = materials[name];
+            let row = $(select).closest('tr');
+            properties.forEach((prop, index) => {
+                row.find('input[type="number"]').eq(index).val(data[prop]);
+            });
+            row.find('input[type="number"]').eq(properties.length).val(data['Tonase']);
+            row.find('input[type="number"]').eq(properties.length + 1).val(data['RpPerTon']);
+            row.find('.material-name').val(name);
+        }
+
+        function calculate() {
+            let data = [];
+            let totalTonase = 0;
+
+            $('#inputTable tbody tr:not(.sum-product-row)').each(function() {
+                let row = {
+                    Material: $(this).find('.material-select').val() || $(this).find('.material-name').val(),
+                    Tonase: parseFloat($(this).find('input[type="number"]').eq(properties.length).val()) || 0,
+                    RpPerTon: parseFloat($(this).find('input[type="number"]').eq(properties.length + 1).val()) || 0
+                };
+                properties.forEach((prop, index) => {
+                    row[prop] = parseFloat($(this).find('input[type="number"]').eq(index).val()) || 0;
+                });
+                row.SM = row.SiO2 / (row.Al2O3 + row.Fe2O3);
+                row.AM = row.Al2O3 / row.Fe2O3;
+                row.NaEq = 0.658 * row.K2O + row.Na2O;
+                row.RpTotal = row.RpPerTon * row.Tonase;
+                totalTonase += row.Tonase;
+                data.push(row);
+
+                $(this).find('.sm').text(row.SM.toFixed(2));
+                $(this).find('.am').text(row.AM.toFixed(2));
+                $(this).find('.naeq').text(row.NaEq.toFixed(2));
+                $(this).find('.rp-total').text(row.RpTotal.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
+            });
+
+            let sumProduct = properties.reduce((acc, prop) => ({ ...acc, [prop]: 0 }), { SM: 0, AM: 0, NaEq: 0, RpTotal: 0 });
+            data.forEach(row => {
+                row['%'] = (row.Tonase / totalTonase) * 100;
+                properties.forEach(prop => {
+                    let weighted = row[prop] * row['%'] / 100;
+                    sumProduct[prop] += weighted;
+                });
+                sumProduct.SM += row.SM * row['%'] / 100;
+                sumProduct.AM += row.AM * row['%'] / 100;
+                sumProduct.NaEq += row.NaEq * row['%'] / 100;
+                sumProduct.RpTotal += row.RpTotal;
+            });
+
+                // Store SumProduct values in the global object
+                properties.forEach(prop => {
+                sumProductValues[prop] = sumProduct[prop];
+            });
+
+            $('#inputTable tbody tr:not(.sum-product-row)').each(function(index) {
+                $(this).find('.percentage').text(data[index]['%'].toFixed(2) + '%');
+            });
+
+            $('.sum-product-row').remove();
+
+            let sumProductRow = `
+                <tr class="sum-product-row">
+                    <td>SumProduct</td>
+                    ${properties.map(prop => `<td>${sumProduct[prop].toFixed(2)}</td>`).join('')}
+                    <td>${totalTonase.toFixed(2)}</td>
+                    <td></td>
+                    <td>${sumProduct.SM.toFixed(2)}</td>
+                    <td>${sumProduct.AM.toFixed(2)}</td>
+                    <td>${sumProduct.NaEq.toFixed(2)}</td>
+                    <td>${sumProduct.RpTotal.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                    <td>100.00%</td>
+                    <td></td>
+                </tr>
+            `;
+            $('#inputTable tbody').append(sumProductRow);
+            // Call the new function to save SumProduct values
+            saveSumProductValues();
+        }
+            // New function to save SumProduct values
+            function saveSumProductValues() {
+            localStorage.setItem('sumProductValues', JSON.stringify(sumProductValues));
+        }
+
+            // New function to get SumProduct values (can be called from other HTML files)
+            function getSumProductValues() {
+            return JSON.parse(localStorage.getItem('sumProductValues')) || {};
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Material," + properties.join(',') + ",Tonase,Rp/Ton\n";
+
+            for (let name in materials) {
+                let row = [name];
+                properties.forEach(prop => {
+                    row.push(materials[name][prop]);
+                });
+                row.push(materials[name]['Tonase']);
+                row.push(materials[name]['RpPerTon']);
+                csvContent += row.join(',') + "\n";
+            }
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "materials.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+
+        function importFromCSV(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                const headers = lines[0].split(',');
+
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length === headers.length) {
+                        const name = values[0];
+                        const data = {};
+                        for (let j = 1; j < headers.length; j++) {
+                            data[headers[j]] = parseFloat(values[j]) || 0;
+                        }
+                        saveMaterial(name, data);
+                    }
+                }
+                updateMaterialDropdowns();
+            }
+            reader.readAsText(file);
+        }
+
+        function saveAsJPEG() {
+            // Menambahkan latar belakang putih sebelum menyimpan sebagai gambar JPEG
+            const table = document.querySelector('#inputTable');
+            const originalBackgroundColor = table.style.backgroundColor; // Simpan warna latar belakang asli
+
+            table.style.backgroundColor = 'white'; // Atur latar belakang tabel menjadi putih
+
+            html2canvas(document.body).then(function(canvas) {
+                var link = document.createElement('a');
+                link.download = 'material_calculation.jpg';
+                link.href = canvas.toDataURL('image/jpeg');
+                link.click();
+
+                table.style.backgroundColor = originalBackgroundColor; // Kembalikan warna latar belakang asli setelah selesai
+            });
+        }
+
+        // Event listener for CSV file input
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            importFromCSV(e.target.files[0]);
+        });
+
+        // Initialize with some rows
+        for (let i = 0; i < 4; i++) {
+            addRow();
+        }
+    </script>
+</body>
+</html>
