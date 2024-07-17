@@ -179,7 +179,7 @@
         function calculate() {
             let data = [];
             let totalTonase = 0;
-
+        
             $('#inputTable tbody tr:not(.sum-product-row)').each(function() {
                 let row = {
                     Material: $(this).find('.material-select').val() || $(this).find('.material-name').val(),
@@ -195,37 +195,34 @@
                 row.RpTotal = row.RpPerTon * row.Tonase;
                 totalTonase += row.Tonase;
                 data.push(row);
-
+        
                 $(this).find('.sm').text(row.SM.toFixed(2));
                 $(this).find('.am').text(row.AM.toFixed(2));
                 $(this).find('.naeq').text(row.NaEq.toFixed(2));
-                $(this).find('.rp-total').text(row.RpTotal.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
+                $(this).find('.rp-total').text(row.RpTotal.toFixed(2));
             });
-
-            let sumProduct = properties.reduce((acc, prop) => ({ ...acc, [prop]: 0 }), { SM: 0, AM: 0, NaEq: 0, RpTotal: 0 });
+        
+            let sumProduct = properties.reduce((acc, prop) => ({ ...acc, [prop]: 0 }), { RpTotal: 0 });
             data.forEach(row => {
                 row['%'] = (row.Tonase / totalTonase) * 100;
                 properties.forEach(prop => {
                     let weighted = row[prop] * row['%'] / 100;
                     sumProduct[prop] += weighted;
                 });
-                sumProduct.SM += row.SM * row['%'] / 100;
-                sumProduct.AM += row.AM * row['%'] / 100;
-                sumProduct.NaEq += row.NaEq * row['%'] / 100;
                 sumProduct.RpTotal += row.RpTotal;
             });
-
-                // Store SumProduct values in the global object
-                properties.forEach(prop => {
-                sumProductValues[prop] = sumProduct[prop];
-            });
-
+        
+            // Calculate SM, AM, and NaEq using sumproduct values
+            sumProduct.SM = sumProduct.SiO2 / (sumProduct.Al2O3 + sumProduct.Fe2O3);
+            sumProduct.AM = sumProduct.Al2O3 / sumProduct.Fe2O3;
+            sumProduct.NaEq = 0.658 * sumProduct.K2O + sumProduct.Na2O;
+        
             $('#inputTable tbody tr:not(.sum-product-row)').each(function(index) {
                 $(this).find('.percentage').text(data[index]['%'].toFixed(2) + '%');
             });
-
+        
             $('.sum-product-row').remove();
-
+        
             let sumProductRow = `
                 <tr class="sum-product-row">
                     <td>SumProduct</td>
@@ -235,14 +232,12 @@
                     <td>${sumProduct.SM.toFixed(2)}</td>
                     <td>${sumProduct.AM.toFixed(2)}</td>
                     <td>${sumProduct.NaEq.toFixed(2)}</td>
-                    <td>${sumProduct.RpTotal.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                    <td>${sumProduct.RpTotal.toFixed(2)}</td>
                     <td>100.00%</td>
                     <td></td>
                 </tr>
             `;
             $('#inputTable tbody').append(sumProductRow);
-            // Call the new function to save SumProduct values
-            saveSumProductValues();
         }
             // New function to save SumProduct values
             function saveSumProductValues() {
